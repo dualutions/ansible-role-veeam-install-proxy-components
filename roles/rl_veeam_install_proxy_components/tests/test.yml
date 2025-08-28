@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - rl_awx_create_backup
+    - rl_veeam_install_proxy_components
