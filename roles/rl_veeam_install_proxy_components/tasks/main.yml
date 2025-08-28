@@ -8,7 +8,7 @@
     method: POST
     body:
       grant_type: 'password'
-      disable_antiforgery_token: false
+      disable_antiforgery_token: true
       username: '{{ windows_local_admin_new_vm_username }}'
       password: '{{ windows_local_admin_new_vm_password }}'
     body_format: form-urlencoded
