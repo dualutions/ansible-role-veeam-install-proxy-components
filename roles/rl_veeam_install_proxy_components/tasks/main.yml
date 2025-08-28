@@ -50,6 +50,42 @@
     ansible_user: '{{ windows_domain_admin_username }}'
     ansible_password: '{{ windows_domain_admin_password }}'
 
+- name: Copy PowerShell 7.5.2 installer from SMB share \\{{ windows_smb_hostname }}\{{ windows_smb_share }} to Windows VM
+  ansible.windows.win_copy:
+    src: '\\{{ windows_smb_hostname }}\{{ windows_smb_share }}\PowerShell-7.5.2-win-x64.msi'
+    dest: '{{ veeam_install_tmp_folder }}'
+    remote_src: true
+  register: copy_powershell_file_status
+  vars:
+    ansible_winrm_transport: 'kerberos'
+    ansible_user: '{{ windows_domain_admin_username }}'
+    ansible_password: '{{ windows_domain_admin_password }}'
+
+- name: Check if PowerShell 7.5.2 is already installed
+  ansible.windows.win_shell: |
+    $pwsh = "C:\Program Files\PowerShell\7\pwsh.exe"
+    if (-Not (Test-Path $pwsh)) { exit 1 }
+    $version = & $pwsh -NoProfile -Command '$PSVersionTable.PSVersion'
+    if ($version.Major -eq 7 -and $version.Minor -ge 5) { exit 0 } else { exit 1 }
+  register: pwsh_check
+  ignore_errors: true
+  vars:
+      ansible_winrm_transport: 'kerberos'
+      ansible_user: '{{ windows_domain_admin_username }}'
+      ansible_password: '{{ windows_domain_admin_password }}'
+
+- name: Install PowerShell 7.5.2 silently
+  ansible.windows.win_package:
+    path: '{{ veeam_install_tmp_folder }}\PowerShell-7.5.2-win-x64.msi'
+    state: present
+    arguments: '/quiet /norestart'
+  when: pwsh_check.rc != 0
+  register: pwsh_install_result
+  vars:
+    ansible_winrm_transport: 'kerberos'
+    ansible_user: '{{ windows_domain_admin_username }}'
+    ansible_password: '{{ windows_domain_admin_password }}'
+
 - name: Authenticate with VSPC API to get access token
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/token'
