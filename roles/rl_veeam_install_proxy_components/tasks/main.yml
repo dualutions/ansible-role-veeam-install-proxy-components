@@ -23,7 +23,9 @@
 
 - name: Check if .NET Runtime >= 8.0 is installed
   ansible.windows.win_shell: |
-    $version = dotnet --list-runtimes | ForEach-Object {
+    $dotnet = "C:\Program Files\dotnet\dotnet.exe"
+    if (-Not (Test-Path $dotnet)) { exit 1 }
+    $version = & $dotnet --list-runtimes | ForEach-Object {
         if ($_ -match 'Microsoft\.NETCore\.App (\d+)\.(\d+)\.(\d+)') {
             [version]("$($matches[1]).$($matches[2]).$($matches[3])")
         }
