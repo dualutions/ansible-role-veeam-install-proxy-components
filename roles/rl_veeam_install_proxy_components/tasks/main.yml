@@ -12,7 +12,7 @@
 
 - name: Copy Veeam Backup for M365 Licenses from SMB share \\{{ windows_smb_hostname }}\{{ windows_smb_share }} to Windows VM
   ansible.windows.win_copy:
-    src: '\\{{ windows_smb_hostname }}\{{ windows_smb_share }}\dotnet-runtime-9.0.8-win-x64.exe'
+    src: '\\{{ windows_smb_hostname }}\{{ windows_smb_share }}\dotnet-runtime-8.0.19-win-x64.exe'
     dest: '{{ veeam_install_tmp_folder }}'
     remote_src: true
   register: copy_lic_file_status
@@ -21,9 +21,14 @@
     ansible_user: '{{ windows_domain_admin_username }}'
     ansible_password: '{{ windows_domain_admin_password }}'
 
-- name: Check if .NET Runtime is already installed in version {{ dotnet_runtime_version }}
+- name: Check if .NET Runtime >= 8.0 is installed
   ansible.windows.win_shell: |
-    dotnet --list-runtimes | Select-String "Microsoft.NETCore.App {{ dotnet_runtime_version }}"
+    $version = dotnet --list-runtimes | ForEach-Object {
+        if ($_ -match 'Microsoft\.NETCore\.App (\d+)\.(\d+)\.(\d+)') {
+            [version]("$($matches[1]).$($matches[2]).$($matches[3])")
+        }
+    } | Sort-Object -Descending | Select-Object -First 1
+    if ($version -ge [version]"8.0.0") { exit 0 } else { exit 1 }
   register: dotnet_check
   ignore_errors: true
   vars:
@@ -33,7 +38,7 @@
 
 - name: Install .NET Runtime silently version {{ dotnet_runtime_version }}
   ansible.windows.win_package:
-    path: '{{ veeam_install_tmp_folder }}\dotnet-runtime-9.0.8-win-x64.exe'
+    path: '{{ veeam_install_tmp_folder }}\dotnet-runtime-8.0.19-win-x64.exe'
     state: present
     arguments: '/quiet /norestart'
   when: dotnet_check.rc != 0
