@@ -1,0 +1,9 @@
+---
+# playbook for role: rl_windows_winrm_connection_test
+
+- name: Backing up AWX using AWX Operator
+  hosts: localhost
+  gather_facts: false
+  
+  roles:
+    - rl_awx_create_backup
