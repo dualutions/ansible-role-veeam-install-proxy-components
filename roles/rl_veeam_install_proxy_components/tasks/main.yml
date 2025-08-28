@@ -3,7 +3,7 @@
 
 - name: Authenticate with VSPC API to get access token
   ansible.builtin.uri:
-    url: '{{ veeam_backup_server_api_url }}:4443/token'
+    url: '{{ veeam_backup_server_api_url }}:4443/v8/token'
     validate_certs: false
     method: POST
     body:
