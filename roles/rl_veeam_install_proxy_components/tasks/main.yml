@@ -25,7 +25,7 @@
 
 - name: Install Veeam Proxy Components via REST API
   ansible.builtin.uri:
-    url: '{{ veeam_vspc_api_url }}/v8/proxies'
+    url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
     validate_certs: false
     method: POST
     body_format: json
