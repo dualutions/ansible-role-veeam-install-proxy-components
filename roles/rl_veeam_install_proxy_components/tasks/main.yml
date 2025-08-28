@@ -1,6 +1,48 @@
 ---
 # tasks file for rl_veeam_install_proxy_components
 
+- name: Create 'C:\Temp' directory if not exists
+  ansible.windows.win_file:
+    path: 'C:\Temp'
+    state: directory
+  vars:
+    ansible_winrm_transport: 'kerberos'
+    ansible_user: '{{ windows_domain_admin_username }}'
+    ansible_password: '{{ windows_domain_admin_password }}'
+
+- name: Copy Veeam Backup for M365 Licenses from SMB share \\{{ windows_smb_hostname }}\{{ windows_smb_share }} to Windows VM
+  ansible.windows.win_copy:
+    src: '\\{{ windows_smb_hostname }}\{{ windows_smb_share }}\dotnet-runtime-9.0.8-win-x64.exe'
+    dest: '{{ veeam_install_tmp_folder }}'
+    remote_src: true
+  register: copy_lic_file_status
+  vars:
+    ansible_winrm_transport: 'kerberos'
+    ansible_user: '{{ windows_domain_admin_username }}'
+    ansible_password: '{{ windows_domain_admin_password }}'
+
+- name: Check if .NET Runtime is already installed in version {{ dotnet_runtime_version }}
+  ansible.windows.win_shell: |
+    dotnet --list-runtimes | Select-String "Microsoft.NETCore.App {{ dotnet_runtime_version }}"
+  register: dotnet_check
+  ignore_errors: true
+  vars:
+      ansible_winrm_transport: 'kerberos'
+      ansible_user: '{{ windows_domain_admin_username }}'
+      ansible_password: '{{ windows_domain_admin_password }}'
+
+- name: Install .NET Runtime silently version {{ dotnet_runtime_version }}
+  ansible.windows.win_package:
+    path: '{{ veeam_install_tmp_folder }}\dotnet-runtime-9.0.8-win-x64.exe'
+    state: present
+    arguments: '/quiet /norestart'
+  when: dotnet_check.rc != 0
+  register: dotnet_install_result
+  vars:
+    ansible_winrm_transport: 'kerberos'
+    ansible_user: '{{ windows_domain_admin_username }}'
+    ansible_password: '{{ windows_domain_admin_password }}'
+
 - name: Authenticate with VSPC API to get access token
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/token'
