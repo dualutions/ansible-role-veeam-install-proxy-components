@@ -1,3 +1,53 @@
 ---
 # tasks file for rl_veeam_install_proxy_components
 
+- name: Authenticate with VSPC API to get access token
+  ansible.builtin.uri:
+    url: '{{ veeam_vspc_api_url }}/token'
+    validate_certs: false
+    method: POST
+    body:
+      grant_type: 'password'
+      username: '{{ veeam_api_user }}'
+      password: '{{ veeam_api_password }}'
+    body_format: form-urlencoded
+    headers:
+      Content-Type: 'application/x-www-form-urlencoded'
+    return_content: yes
+    status_code: 200
+  register: auth_response
+  delegate_to: localhost
+  no_log: false
+
+- name: Set access token as a temporary fact for this playbook run
+  ansible.builtin.set_fact:
+    access_token: '{{ auth_response.json.access_token }}'
+
+- name: Install Veeam Proxy Components via REST API
+  ansible.builtin.uri:
+    url: '{{ veeam_vspc_api_url }}/v8/proxies'
+    validate_certs: false
+    method: POST
+    body_format: json
+    body:
+      useDomainNetwork: true
+      useInternetProxy: false
+      operatingSystem: "Windows"
+      id: "00000000-0000-0000-0000-000000000000"
+      hostName: "{{ veeam_backup_proxies.ip }}"
+      description: "{{ veeam_backup_proxies.description }}"
+      port: 0
+      username: "{{ windows_local_admin_new_vm_username }}"
+      password: "{{ windows_local_admin_new_vm_password }}"
+      serviceAccountName: "{{ veeam_service_account_username }}"
+      serviceAccountPassword: "{{ veeam_service_account_password }}"
+      createServiceAccount: true
+      enableNetworkThrottling: false
+      attachUsedProxy: false
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer {{ access_token }}"
+    status_code: [200,201]
+  register: proxy_install_result
+  delegate_to: localhost
+  no_log: false
