@@ -36,7 +36,7 @@
       id: "00000000-0000-0000-0000-000000000000"
       hostName: "{{ veeam_backup_proxies.ip }}"
       description: "{{ veeam_backup_proxies.description }}"
-      port: 0
+      port: 9193
       username: "{{ windows_local_admin_new_vm_username }}"
       password: "{{ windows_local_admin_new_vm_password }}"
       serviceAccountName: "{{ veeam_service_account_username }}"
