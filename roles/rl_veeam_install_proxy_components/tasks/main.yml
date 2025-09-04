@@ -6,6 +6,7 @@
     name: 'Veeam Installer Service'
     enable: true
     action: 'allow'
+    state: 'present'
     direction: 'in'
     localport: '445'
     protocol: 'TCP'
