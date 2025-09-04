@@ -13,7 +13,7 @@
       - 'private'
       - 'public'
   register: windows_firewall_veeam_svc_status
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: "{{ ansible_host }}"
   vars:
     ansible_winrm_transport: 'kerberos'
     ansible_user: '{{ windows_domain_admin_username }}'
