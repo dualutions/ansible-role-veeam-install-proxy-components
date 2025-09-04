@@ -160,11 +160,11 @@
 - name: Skip if proxy already exists
   debug:
     msg: "Proxy already exists -> skipping"
-  when: proxy_install_result.msg is search("Proxy already exists on the target machine|is already a proxy")
+  when: proxy_install_result.json.message is search("Proxy already exists on the target machine|is already a proxy")
 
 - name: Fail or mark changed if needed
   ansible.builtin.fail:
     msg: "{{ proxy_install_result.msg }}"
   when:
     - proxy_install_result.failed
-    - proxy_install_result.msg is not search("Proxy already exists on the target machine|is already a proxy")
+    - proxy_install_result.json.message is not search("Proxy already exists on the target machine|is already a proxy")
