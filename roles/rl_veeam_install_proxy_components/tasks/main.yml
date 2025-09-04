@@ -13,7 +13,6 @@
       - 'private'
       - 'public'
   register: windows_firewall_nats_status
-  delegate_to: "{{ inventory_hostname }}.{{ vm_domain }}"
   vars:
     ansible_winrm_transport: 'kerberos'
     ansible_user: '{{ windows_domain_admin_username }}'
