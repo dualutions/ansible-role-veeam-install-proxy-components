@@ -150,7 +150,7 @@
 
 - name: Fail to install Veeam Backup Proxy Components
   ansible.builtin.fail:
-    msg: "{{ proxy_install_result.json.message }}"
+    msg: "{{ proxy_install_result.msg }}"
   when:
     - proxy_install_result.status in [-1]
     - proxy_install_result.failed
