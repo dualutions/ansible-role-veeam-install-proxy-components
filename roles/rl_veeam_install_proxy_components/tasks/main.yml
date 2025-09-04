@@ -3,12 +3,16 @@
 
 - name: Configure Windows Firewall - Allow Veeam Installer Service on Port 445
   community.windows.win_firewall_rule:
-    name: 'Veeam Installer Service'
+    name: 'Veeam Microsoft 365 Service'
     enable: true
     action: 'allow'
     state: 'present'
     direction: 'in'
-    localport: '445'
+    localport: 
+      - '445'
+      - '9191'
+      - '9193'
+      - '9194'
     protocol: 'TCP'
     profiles:
       - 'domain'
