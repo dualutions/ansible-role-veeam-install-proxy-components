@@ -168,4 +168,3 @@
   when:
     - proxy_install_result.failed
     - proxy_install_result.msg is not search("Proxy already exists on the target machine|is already a proxy")
-
