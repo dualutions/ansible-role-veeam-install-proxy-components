@@ -127,7 +127,7 @@
   ansible.builtin.debug:
     var: proxy_check_result
 
-- name: Install Veeam Proxy Components via REST API
+- name: Try to install Veeam Proxy
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
     validate_certs: false
@@ -153,12 +153,19 @@
       Authorization: "Bearer {{ access_token }}"
     status_code: [200,201]
   register: proxy_install_result
+  ignore_errors: true
   delegate_to: localhost
   no_log: false
-  failed_when: >
-    proxy_install_result.failed and
-    ('Proxy already exists on the target machine' not in proxy_install_result.msg and
-     'is already a proxy' not in proxy_install_result.msg)
-  changed_when: >
-    'Proxy already exists on the target machine' not in proxy_install_result.msg and
-    'is already a proxy' not in proxy_install_result.msg
+
+- name: Skip if proxy already exists
+  debug:
+    msg: "Proxy already exists -> skipping"
+  when: proxy_install_result.msg is search("Proxy already exists on the target machine|is already a proxy")
+
+- name: Fail or mark changed if needed
+  ansible.builtin.fail:
+    msg: "{{ proxy_install_result.msg }}"
+  when:
+    - proxy_install_result.failed
+    - proxy_install_result.msg is not search("Proxy already exists on the target machine|is already a proxy")
+
