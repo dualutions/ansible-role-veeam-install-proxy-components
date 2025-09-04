@@ -147,7 +147,7 @@
     headers:
       Content-Type: "application/json"
       Authorization: "Bearer {{ access_token }}"
-    status_code: [200,201,409]
+    status_code: [200,201,409,-1]
   register: proxy_install_result
   ignore_errors: true
   delegate_to: localhost
@@ -155,7 +155,7 @@
   failed_when: >
     proxy_install_result.status not in [200, 201, 409]
   changed_when: >
-    proxy_install_result.status in [200, 201]
+    proxy_install_result.status in [200, 201,-1]
 
 - name: Skip if proxy already exists
   debug:
