@@ -26,7 +26,6 @@
     path: '{{ veeam_install_tmp_folder }}\dotnet-runtime-8.0.19-win-x64.exe'
     state: present
     arguments: '/quiet /norestart'
-  when: dotnet_check.rc != 0
   register: dotnet_install_result
   vars:
     ansible_winrm_transport: 'kerberos'
@@ -49,7 +48,6 @@
     path: '{{ veeam_install_tmp_folder }}\PowerShell-7.5.2-win-x64.msi'
     state: present
     arguments: '/quiet /norestart'
-  when: pwsh_check.rc != 0
   register: pwsh_install_result
   vars:
     ansible_winrm_transport: 'kerberos'
