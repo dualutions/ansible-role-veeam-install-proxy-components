@@ -128,14 +128,21 @@
   changed_when: >
     proxy_install_result.status in [200, 201,-1]
 
-- name: Skip if proxy already exists
+- name: Skip if veeam proxy components already exists 
   debug:
-    msg: "Proxy already exists / installed -> skipping"
-  when: proxy_install_result.json.message is search("Proxy already exists on the target machine is already a proxy")
+    msg: "Veeam Backup Proxy Components are already installed -> skipping"
+  when: proxy_install_result.status in [409]
 
-- name: Fail or mark changed if needed
+- name: Fail to install Veeam Backup Proxy Components
   ansible.builtin.fail:
     msg: "{{ proxy_install_result.json.message }}"
   when:
+    - proxy_install_result.status in [-1]
     - proxy_install_result.failed
-    - proxy_install_result.json.message is not search("Proxy already exists on the target machine is already a proxy")
+    - proxy_install_result.msg is not search("OK")
+    - proxy_install_result.msg is not search("Proxy already exists on the target machine is already a proxy")
+
+- name: Veeam Proxy Components installed
+  debug:
+    msg: "Veeam Backup Proxy Components are installed successfully"
+  when: proxy_install_result.status in [201]
