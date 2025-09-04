@@ -5,6 +5,7 @@
   community.windows.win_firewall_rule:
     name: 'Veeam Installer Service'
     enable: true
+    action: 'allow'
     direction: 'in'
     localport: '445'
     protocol: 'TCP'
