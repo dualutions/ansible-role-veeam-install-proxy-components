@@ -109,6 +109,24 @@
   ansible.builtin.set_fact:
     access_token: '{{ auth_response.json.access_token }}'
 
+- name: Check Veeam Proxy Components already installed
+  ansible.builtin.uri:
+    url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
+    validate_certs: false
+    method: GET
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer {{ access_token }}"
+    status_code: [200,201]
+  register: proxy_check_result
+  delegate_to: localhost
+  no_log: false
+
+- name: Debug proxy_check_result
+  ansible.builtin.debug:
+    var: proxy_check_result
+
 - name: Try to install Veeam Proxy
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
