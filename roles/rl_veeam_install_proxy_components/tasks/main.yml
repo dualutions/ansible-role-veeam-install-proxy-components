@@ -133,7 +133,7 @@
       Content-Type: "application/json"
       Authorization: "Bearer {{ access_token }}"
     status_code: [200,201,409,-1]
-    timeout: "60"
+    timeout: "200"
   register: proxy_install_result
   ignore_errors: true
   delegate_to: localhost
