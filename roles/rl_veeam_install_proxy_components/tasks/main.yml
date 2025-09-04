@@ -124,7 +124,7 @@
   no_log: false
 
 - name: Debug proxy_check_result
-  ansible.builtin.debgu:
+  ansible.builtin.debug:
     var: proxy_check_result
 
 - name: Install Veeam Proxy Components via REST API
