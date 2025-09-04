@@ -8,11 +8,7 @@
     action: 'allow'
     state: 'present'
     direction: 'in'
-    localport: 
-      - '445'
-      - '9191'
-      - '9193'
-      - '9194'
+    localport: [445,9191,9193,9194]
     protocol: 'TCP'
     profiles:
       - 'domain'
