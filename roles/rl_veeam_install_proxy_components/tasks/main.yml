@@ -21,23 +21,6 @@
     ansible_user: '{{ windows_domain_admin_username }}'
     ansible_password: '{{ windows_domain_admin_password }}'
 
-- name: Check if .NET Runtime >= 8.0 is installed
-  ansible.windows.win_shell: |
-    $dotnet = "C:\Program Files\dotnet\dotnet.exe"
-    if (-Not (Test-Path $dotnet)) { exit 1 }
-    $version = & $dotnet --list-runtimes | ForEach-Object {
-        if ($_ -match 'Microsoft\.NETCore\.App (\d+)\.(\d+)\.(\d+)') {
-            [version]("$($matches[1]).$($matches[2]).$($matches[3])")
-        }
-    } | Sort-Object -Descending | Select-Object -First 1
-    if ($version -ge [version]"8.0.0") { exit 0 } else { exit 1 }
-  register: dotnet_check
-  ignore_errors: true
-  vars:
-      ansible_winrm_transport: 'kerberos'
-      ansible_user: '{{ windows_domain_admin_username }}'
-      ansible_password: '{{ windows_domain_admin_password }}'
-
 - name: Install .NET Runtime silently version {{ dotnet_runtime_version }}
   ansible.windows.win_package:
     path: '{{ veeam_install_tmp_folder }}\dotnet-runtime-8.0.19-win-x64.exe'
@@ -60,19 +43,6 @@
     ansible_winrm_transport: 'kerberos'
     ansible_user: '{{ windows_domain_admin_username }}'
     ansible_password: '{{ windows_domain_admin_password }}'
-
-- name: Check if PowerShell 7.5.2 is already installed
-  ansible.windows.win_shell: |
-    $pwsh = "C:\Program Files\PowerShell\7\pwsh.exe"
-    if (-Not (Test-Path $pwsh)) { exit 1 }
-    $version = & $pwsh -NoProfile -Command '$PSVersionTable.PSVersion'
-    if ($version.Major -eq 7 -and $version.Minor -ge 5) { exit 0 } else { exit 1 }
-  register: pwsh_check
-  ignore_errors: true
-  vars:
-      ansible_winrm_transport: 'kerberos'
-      ansible_user: '{{ windows_domain_admin_username }}'
-      ansible_password: '{{ windows_domain_admin_password }}'
 
 - name: Install PowerShell 7.5.2 silently
   ansible.windows.win_package:
