@@ -10,7 +10,7 @@
     ansible_user: '{{ windows_domain_admin_username }}'
     ansible_password: '{{ windows_domain_admin_password }}'
 
-- name: Copy Veeam Backup for M365 Licenses from SMB share \\{{ windows_smb_hostname }}\{{ windows_smb_share }} to Windows VM
+- name: Copy .net-runtime from SMB share \\{{ windows_smb_hostname }}\{{ windows_smb_share }} to Windows VM
   ansible.windows.win_copy:
     src: '\\{{ windows_smb_hostname }}\{{ windows_smb_share }}\dotnet-runtime-8.0.19-win-x64.exe'
     dest: '{{ veeam_install_tmp_folder }}'
@@ -109,6 +109,24 @@
   ansible.builtin.set_fact:
     access_token: '{{ auth_response.json.access_token }}'
 
+- name: Check Veeam Proxy Components already installed
+  ansible.builtin.uri:
+    url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
+    validate_certs: false
+    method: GET
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer {{ access_token }}"
+    status_code: [200,201]
+  register: proxy_check_result
+  delegate_to: localhost
+  no_log: false
+
+- name: Debug proxy_check_result
+  ansible.builtin.debgu:
+    var: proxy_check_result
+
 - name: Install Veeam Proxy Components via REST API
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
@@ -134,6 +152,11 @@
       Content-Type: "application/json"
       Authorization: "Bearer {{ access_token }}"
     status_code: [200,201]
+  failed_when: >
+    proxy_check_result.rc != 0 and
+    ("Proxy already exists on the target machine" not in proxy_check_result.stderr and
+     "is already a proxy" not in proxy_check_result.stderr)
+  changed_when: "'Proxy already exists on the target machine' not in proxy_check_result.stderr and 'is already a proxy' not in proxy_check_result.stderr"
   register: proxy_install_result
   delegate_to: localhost
   no_log: false
