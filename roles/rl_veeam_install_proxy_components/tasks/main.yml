@@ -152,11 +152,13 @@
       Content-Type: "application/json"
       Authorization: "Bearer {{ access_token }}"
     status_code: [200,201]
-  failed_when: >
-    proxy_check_result.rc != 0 and
-    ("Proxy already exists on the target machine" not in proxy_check_result.stderr and
-     "is already a proxy" not in proxy_check_result.stderr)
-  changed_when: "'Proxy already exists on the target machine' not in proxy_check_result.stderr and 'is already a proxy' not in proxy_check_result.stderr"
   register: proxy_install_result
   delegate_to: localhost
   no_log: false
+  failed_when: >
+    proxy_install_result.failed and
+    ('Proxy already exists on the target machine' not in proxy_install_result.msg and
+     'is already a proxy' not in proxy_install_result.msg)
+  changed_when: >
+    'Proxy already exists on the target machine' not in proxy_install_result.msg and
+    'is already a proxy' not in proxy_install_result.msg
