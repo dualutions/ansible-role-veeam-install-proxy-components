@@ -1,6 +1,23 @@
 ---
 # tasks file for rl_veeam_install_proxy_components
 
+- name: Configure Windows Firewall - Allow Veeam Installer Service on Port 445
+  community.windows.win_firewall_rule:
+    name: 'Veeam Installer Service'
+    enable: true
+    direction: 'in'
+    localport: '445'
+    protocol: 'TCP'
+    profiles:
+      - 'domain'
+      - 'private'
+      - 'public'
+  register: windows_firewall_nats_status
+  vars:
+    ansible_winrm_transport: 'kerberos'
+    ansible_user: '{{ windows_domain_admin_username }}'
+    ansible_password: '{{ windows_domain_admin_password }}'
+
 - name: Create 'C:\Temp' directory if not exists
   ansible.windows.win_file:
     path: 'C:\Temp'
