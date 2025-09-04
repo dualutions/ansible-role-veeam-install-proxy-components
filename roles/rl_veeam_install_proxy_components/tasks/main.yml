@@ -123,10 +123,6 @@
   delegate_to: localhost
   no_log: false
 
-- name: Debug proxy_check_result
-  ansible.builtin.debug:
-    var: proxy_check_result
-
 - name: Install Veeam Proxy Components via REST API
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/proxies'
