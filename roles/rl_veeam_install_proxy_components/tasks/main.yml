@@ -85,7 +85,7 @@
       password: '{{ windows_local_admin_new_vm_password }}'
     body_format: form-urlencoded
     headers:
-      Accept: 'application/x-www-form-urlencoded'
+      Content-Type: 'application/x-www-form-urlencoded'
     return_content: yes
     status_code: 200
   register: auth_response
