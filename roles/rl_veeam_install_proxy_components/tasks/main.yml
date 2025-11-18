@@ -1,14 +1,14 @@
 ---
 # tasks file for rl_veeam_install_proxy_components
 
-- name: Configure Windows Firewall - Allow Veeam Installer Service on Port 445,9191,9193,9194,4222,443.5432
+- name: Configure Windows Firewall - Allow Veeam Installer Service on Port 445,9191,9193,9194,4222,443,5432
   community.windows.win_firewall_rule:
     name: 'Veeam Microsoft 365 Service'
     enable: true
     action: 'allow'
     state: 'present'
     direction: 'in'
-    localport: '445,9191,9193,9194,4222,443.5432'
+    localport: '445,9191,9193,9194,4222,443,5432'
     protocol: 'TCP'
     profiles:
       - 'domain'
