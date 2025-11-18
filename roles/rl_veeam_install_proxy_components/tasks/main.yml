@@ -73,7 +73,7 @@
     ansible_user: '{{ windows_domain_admin_username }}'
     ansible_password: '{{ windows_domain_admin_password }}'
 
-- name: Authenticate with VSPC API to get access token
+- name: Authenticate with Veeam Backup Server API to get access token
   ansible.builtin.uri:
     url: '{{ veeam_backup_server_api_url }}:4443/v8/token'
     validate_certs: false
@@ -85,7 +85,7 @@
       password: '{{ windows_local_admin_new_vm_password }}'
     body_format: form-urlencoded
     headers:
-      Content-Type: 'application/x-www-form-urlencoded'
+      Accept: 'application/x-www-form-urlencoded'
     return_content: yes
     status_code: 200
   register: auth_response
