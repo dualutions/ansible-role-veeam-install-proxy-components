@@ -90,6 +90,8 @@
     status_code: 200
   register: auth_response
   delegate_to: localhost
+  retries: 5
+  delay: 2
   no_log: false
 
 - name: Set access token as a temporary fact for this playbook run
